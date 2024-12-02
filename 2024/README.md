@@ -1,8 +1,8 @@
 # Advent of Code 2024
-This year, I used Nushell to solve the problems.
+Nushell v0.100 is needed to run these modules.
 
 ## Structure
-The problem input I received is located in the `input` folder.
+The problem input is located in the `input` folder.
 The code lives in the `aoc2024` module.
 
 ## Usage
