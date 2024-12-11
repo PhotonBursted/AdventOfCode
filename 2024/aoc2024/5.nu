@@ -27,7 +27,7 @@ export def a [] {
         let applicable_rules = $data.ordering_rules | where {|rule| ($rule.preceding in $update) and ($rule.following in $update) }
 
         # Calculate the positions of each page in the update.
-        # This takes the shape of a record, with keys which consist of the page numbers, which makes speeds up lookup.
+        # This takes the shape of a record, with keys which consist of the page numbers, which speeds up lookup.
         let positions_in_update = $update | enumerate | move index --after item | transpose --header-row --as-record
 
 
@@ -62,14 +62,14 @@ export def b [] {
             let applicable_rules = $data.ordering_rules | where {|rule| ($rule.preceding in $subject) and ($rule.following in $subject) }
 
             # Calculate the positions of each page in the update.
-            # This takes the shape of a record, with keys which consist of the page numbers, which makes speeds up lookup.
+            # This takes the shape of a record, with keys which consist of the page numbers, which speeds up lookup.
             let positions_in_update = $subject | enumerate | move index --after item | transpose --header-row --as-record
 
 
             # Find all rules which are not met in the update sequence.
             let violated_rules = $applicable_rules | where {|rule| ($positions_in_update | get $rule.preceding) >= ($positions_in_update | get $rule.following) }
 
-            # If no incorrect rules are found, the update sequence is actually okay.
+            # If no violated rules are found, the update sequence is actually okay, and the loop should end.
             if ($violated_rules | is-empty) {
                 # As described earlier, updates found valid on first pass should be ignored!
                 if ($first_run) {
@@ -82,6 +82,7 @@ export def b [] {
 
             # Here, the violated rules are corrected.
             # This is done by manipulating the subject, swapping columns so they are placed according to what the violated ordering rules specify.
+            # This will eventually settle into the right solution.
             $subject = $violated_rules
             | reduce --fold $positions_in_update {|rule, update| $update | move $rule.preceding --before $rule.following }
             | columns
